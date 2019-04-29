@@ -14,6 +14,6 @@ test:
 
 run: install_mtss
 	ENV="dev" \
-	SUBREDDIT="bottesting" \
+	SUBREDDIT="romania_ss" \
 	REDDIT_AGENT_CREDENTIALS_FILE_NAME="reddit_credentials" \
 	$(GOPATH)/bin/mtss
