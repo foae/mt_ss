@@ -11,39 +11,30 @@ import (
 func main() {
 	subreddit := mustGetEnv("SUBREDDIT")
 	credsFile := mustGetEnv("REDDIT_AGENT_CREDENTIALS_FILE_NAME")
-	failsafe := 0
 
-	for {
-		if failsafe >= 5 {
-			log.Fatalf("retry: something is wrong with the authentication, I've given up.")
+	if bot, err := reddit.NewBotFromAgentFile(credsFile, time.Minute*2); err != nil {
+		log.Printf("could not create bot handle: %v", err)
+	} else {
+		cfg := graw.Config{
+			CommentReplies: false,
+			Mentions:       false,
+			Messages:       false,
+			PostReplies:    false,
+			Subreddits:     []string{subreddit},
+		}
+		handler := &mtssBot{bot: bot}
+		_, wait, err := graw.Run(handler, bot, cfg)
+		if err != nil {
+			log.Fatalf("could not run mtssbot: %v", err)
 		}
 
-		if bot, err := reddit.NewBotFromAgentFile(credsFile, time.Minute*2); err != nil {
-			log.Printf("could not create bot handle: %v", err)
-		} else {
-			cfg := graw.Config{
-				CommentReplies: false,
-				Mentions:       false,
-				Messages:       false,
-				PostReplies:    false,
-				Subreddits:     []string{subreddit},
-			}
-			handler := &mtssBot{bot: bot}
-			_, wait, err := graw.Run(handler, bot, cfg)
-			if err != nil {
-				log.Fatalf("could not run mtssbot: %v", err)
-			}
-
-			log.Println("Waiting patiently...")
-			if err := wait(); err != nil {
-				log.Printf("could not wait: %v", err)
-			}
+		log.Println("Waiting patiently...")
+		if err := wait(); err != nil {
+			log.Printf("could not wait: %v", err)
 		}
-
-		time.Sleep(time.Second * 30 * time.Duration(failsafe))
-		log.Printf("Retrying #%v...", failsafe)
-		failsafe++
 	}
+
+	// TODO: handle token refresh?
 
 }
 

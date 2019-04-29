@@ -12,7 +12,7 @@ type mtssBot struct {
 
 // Post implements the Post interface.
 func (mt *mtssBot) Post(p *reddit.Post) error {
-	if p.Deleted || p.Hidden || p.IsSelf || p.Locked {
+	if p.Deleted || p.Hidden || p.Locked {
 		log.Printf("Post (ID: %v) - (%v) discarded.", p.ID, p.Title)
 		return nil
 	}
