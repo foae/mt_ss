@@ -1,2 +1,2 @@
-# mt_ss
+# mtss
 Reddit bot
